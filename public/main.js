@@ -14,7 +14,7 @@ var WORDS = [
     "space"
 ];
 
-var word = [];
+
 
 var pictionary = function() {
     var canvas, context;
@@ -25,19 +25,7 @@ var pictionary = function() {
     var getWord = function(){
         var randomWord = Math.floor(Math.random() * WORDS.length);
         console.log(WORDS[randomWord]);
-        word.push(WORDS[randomWord]);
-        console.log(word);
         return(WORDS[randomWord]);
-        
-    };
-    
-    var correctAns = function(word1, userGuess){
-        if (word1 != userGuess) {
-            return;
-        }
-        else {
-            socket.emit('correct', userGuess);
-        }
         
     };
     
@@ -59,9 +47,7 @@ var pictionary = function() {
     console.log(guessBox.val());
     
     var userGuess = guessBox.val();
-    var word1 = word[0];
-    console.log(word1);
-    correctAns(userGuess, word1);
+    
     socket.emit('guess', userGuess);
     guessBox.val('');
     
@@ -71,8 +57,8 @@ var pictionary = function() {
     guessBox.on('keydown', onKeyDown);
     
     socket.on('tellGuess', function(guess){
-        // userGuess.append('<div>' + guess + '</div>');
-        userGuesses.text(guess);
+        userGuesses.append('<div>' + guess + '</div>');
+        // userGuesses.text(guess);
     });
     
    
@@ -98,6 +84,7 @@ var pictionary = function() {
     });
     
     var setUpDrawer = function(){
+        context.clearRect(0, 0, canvas[0].width, canvas[0].height);
             function mouseMove(){
                 if (drawing === true) {
                 var offset = canvas.offset();
@@ -113,6 +100,7 @@ var pictionary = function() {
             alert('You are the drawer');
             var newWord = getWord();
             alert(newWord);
+            socket.emit('chooseWord', newWord);
             canvas.on('mousedown', function(){
             drawing =  true;
     });
@@ -124,6 +112,7 @@ var pictionary = function() {
     };
     
     var setUpGuesser = function(){
+        context.clearRect(0, 0, canvas[0].width, canvas[0].height);
         canvas.off('mousemove');
         canvas.off('mousedown');
         canvas.off('mouseup');
