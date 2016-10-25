@@ -11,21 +11,31 @@ var user = [];
 
 io.on('connection', function(socket){
     user.push(socket);
-    if (user.length == 1) {
+    if (user.indexOf(socket) == 0) {
         socket.emit('setRole', 'drawer');
     }
     else {
         socket.emit('setRole', 'guesser');             
     }
     socket.on('picture', function(position){
-    socket.broadcast.emit('drawing', position);    // need handler on client side
+    socket.broadcast.emit('drawing', position);    
     });
     
     socket.on('guess', function(userGuess){
         console.log(userGuess);
+        // if (userGuess == word) {
+        //     user.splice(0, 1, socket);
+        // }
+        // else {
         // if guess is correct, switch roles 
         // try to use splice to manipulate the array
         socket.broadcast.emit('tellGuess', userGuess);
+        });
+    
+    
+    socket.on('correct', function(){
+        user.splice(0, 1, socket);
+        socket.emit('setRole', 'drawer');
     });
     
     socket.on('disconnect', function() {

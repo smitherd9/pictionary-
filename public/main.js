@@ -14,20 +14,32 @@ var WORDS = [
     "space"
 ];
 
-
+var word = [];
 
 var pictionary = function() {
     var canvas, context;
     var socket = io();
     var drawing = false;
-    var userGuess = $('#userGuesses');
+    var userGuesses = $('#userGuesses');
+    
     var getWord = function(){
         var randomWord = Math.floor(Math.random() * WORDS.length);
-        // console.log(WORDS[randomWord]);
+        console.log(WORDS[randomWord]);
+        word.push(WORDS[randomWord]);
+        console.log(word);
         return(WORDS[randomWord]);
+        
     };
     
-    
+    var correctAns = function(word1, userGuess){
+        if (word1 != userGuess) {
+            return;
+        }
+        else {
+            socket.emit('correct', userGuess);
+        }
+        
+    };
     
     
     var draw = function(position) {
@@ -37,20 +49,20 @@ var pictionary = function() {
         context.fill();
     };
     
-    //  var displayGuess = function(guess){
-    //     userGuess.text(guess);
-    // };
-    
     var guessBox;
+    
 
     var onKeyDown = function(event) {
     if (event.keyCode != 13) { // Enter
         return;
     }
-
     console.log(guessBox.val());
-    // var userGuess = guessBox.val();
-    socket.emit('guess', guessBox.val());
+    
+    var userGuess = guessBox.val();
+    var word1 = word[0];
+    console.log(word1);
+    correctAns(userGuess, word1);
+    socket.emit('guess', userGuess);
     guessBox.val('');
     
 };
@@ -59,8 +71,8 @@ var pictionary = function() {
     guessBox.on('keydown', onKeyDown);
     
     socket.on('tellGuess', function(guess){
-        userGuess.append('<div>' + guess + '</div>');
-        // userGuess.text(guess);
+        // userGuess.append('<div>' + guess + '</div>');
+        userGuesses.text(guess);
     });
     
    
@@ -71,25 +83,7 @@ var pictionary = function() {
     canvas[0].width = canvas[0].offsetWidth;
     canvas[0].height = canvas[0].offsetHeight;
     
-    
-    
-    // canvas.on('mousemove', function(event) {
-    //     if (drawing == true) {
-    //     var offset = canvas.offset();
-    //     var position = {x: event.pageX - offset.left,
-    //                     y: event.pageY - offset.top};
-    //     draw(position);
-    //     socket.emit('picture', position);
-    //     }
-    // });
-    
-    // canvas.on('mousedown', function(){
-    //     drawing =  true;
-    // });
-    
-    // canvas.on('mouseup', function(){
-    //     drawing = false;
-    // });
+
     
     socket.on('drawing', function(drawPic){
     draw(drawPic);
@@ -105,7 +99,7 @@ var pictionary = function() {
     
     var setUpDrawer = function(){
             function mouseMove(){
-                if (drawing == true) {
+                if (drawing === true) {
                 var offset = canvas.offset();
                 var position = {x: event.pageX - offset.left,
                         y: event.pageY - offset.top};
@@ -127,7 +121,7 @@ var pictionary = function() {
             drawing = false;
     });
     
-    }
+    };
     
     var setUpGuesser = function(){
         canvas.off('mousemove');
@@ -135,7 +129,7 @@ var pictionary = function() {
         canvas.off('mouseup');
         alert('You are a guesser');
         
-    }
+    };
     
 };
 
