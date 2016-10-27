@@ -33,15 +33,16 @@ io.on('connection', function(socket){
         console.log(user[0]);
         if (userGuess == answer[0]) {
             answer = [];
+            var i = user.indexOf(socket.id);
+            user.splice(i, 1);
             user.splice(0, 1, socket.id);
             console.log(user[0]);
             socket.emit('setRole', 'drawer');
             socket.broadcast.emit('setRole', 'guesser');
-            
+           
         }
         else {
-        // if guess is correct, switch roles 
-        // try to use splice to manipulate the array
+            
         socket.broadcast.emit('tellGuess', userGuess);
             }
         });
@@ -53,25 +54,18 @@ io.on('connection', function(socket){
         console.log(socket.id);
         if (socket.id != user[0]){
             return;
-            // socket.emit('setRole', 'drawer');
-        }
-        // console.log(user[0]);
-        else {
-            user.shift();    // What if user[1] disconnects leaving user[0] and user[2] still in play and then user[0] disconnects?  
-            console.log(user[0]);              // If user[0] then disconnects, splice won't work properly
-            socket.emit('setRole', 'drawer');
             
         }
-        socket.broadcast.emit('setRole', 'guesser');
-        
-        
-        // if (user.indexOf(socket.id) == 0){
-        // socket.emit('setRole', 'drawer');
-        //     }
-        
-        // else {
-        //     socket.broadcast.emit('setRole', 'guesser');
-        // }
+        // user.splice(0,1,user[1]);     user.splice(0,1,Math.floor(Math.random * user.length);  var b = Math.floor ...  ; var temp = user[0] user[0] = user[b];  user[b] = temp;  //swap random person into front of array
+        else {
+            user.shift();    
+            console.log(user[0]);              
+            socket.broadcast.emit('setRole', 'guesser');
+            io.sockets.connected[user[0]].emit('setRole', 'drawer');
+            answer = [];
+            
+        }
+       
     });
 
 });
